@@ -28,7 +28,7 @@ def UpdateDrop(cur_val):
         
 
 right_button = 0
-_x_delay = 4
+_x_delay = 5
 _right_count = 0
 
 def UpdateRight(cur_val):

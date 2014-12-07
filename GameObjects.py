@@ -22,6 +22,11 @@ for i in range(8):
     blocks[i].fill(color[i])
     pygame.draw.rect(blocks[i], (0,0,0),(0,0,BLOCKSIZE, BLOCKSIZE), 2)#self.width = 2
 pygame.draw.rect(blocks[0], (30,30,30),(0,0,BLOCKSIZE, BLOCKSIZE), 1)#self.width = 2
+#blocks[0] is background block
+#blocks[8] is shadow for drop block
+blocks.append(pygame.Surface((BLOCKSIZE, BLOCKSIZE)))
+blocks[8].fill((12, 12, 12))
+pygame.draw.rect(blocks[8], (30,30,30),(0,0,BLOCKSIZE, BLOCKSIZE), 1)
 
 anchors = [(1, 1), (1, 0), (0, 1), (1, 1)]
 lineanchors = [(0, 2), (1, 0), (0, 1), (2, 0)]
@@ -106,6 +111,9 @@ class Tetromino():
     def setY(self, y):
         self.y = y
 
+    def addY(self, y):
+        self.y += y
+
     def setPos(self, x, y):
         self.x = x
         self.y = y
@@ -150,6 +158,7 @@ class Board():
     board = []
     gameOver = False
     active = None
+    shadow = None
     stored = None
     ##BOARD METHODS==================================================================
     
@@ -170,9 +179,12 @@ class Board():
                 block = blocks[Board.board[i][j]]
                 screen.blit(block, ((j + offX)*BLOCKSIZE, (i + offY)*BLOCKSIZE))
         if Board.active != None:
+            Board.shadow.render(screen, offX, offY)
             Board.active.render(screen, offX, offY)
         if Board.stored != None:
             Board.stored.render(screen, -Board.stored.x, -Board.stored.y)
+
+        
         
     def update(self):
         #clears Lines
@@ -258,6 +270,8 @@ class Board():
         
     def create(self, kind = None):
         Board.active = Tetromino(3, 0, None)
+        self.shadowUpdate()
+        
 
     def actIncY(self):
         if Board.active == None:
@@ -274,9 +288,18 @@ class Board():
         Board.active.update(x, 0)
         if (self.collideBorderX() or self.collideX()):
             Board.active.update(-x, 0)
+        self.shadowUpdate()
 
-    def actUpdateX(self, y):
-        Board.active.update(0, y)
+
+    def Drop(self, tet):
+        while(not self.collideY(tet)):
+            tet.addY(1)
+        tet.addY(-1)
+        
+    def shadowUpdate(self):
+        Board.shadow = Board.active.clone()
+        Board.shadow.kind = 8
+        self.Drop(Board.shadow)
 
     def actDrop(self):
         if Board.active == None:
@@ -309,11 +332,14 @@ class Board():
             Board.active = tempPiece.clone()
         del tempPiece
 
+        self.shadowUpdate()
+
     def store(self):
         Board.active, Board.stored = Board.stored, Board.active
         if Board.active == None:
             self.create()
         Board.active.setPos(3, 0)
+        self.shadowUpdate()
         
         
         
