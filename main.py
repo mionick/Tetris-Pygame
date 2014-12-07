@@ -1,6 +1,7 @@
 import sys, os
 from GameObjects import *
 from pygame import *
+import InputHandler
 
 pygame.init()
 pygame.key.set_repeat(50, 50)
@@ -41,23 +42,19 @@ label = myfont.render(str(FPS), 1, (255,255,255))
 #input array
 #[LEFT, RIGHT, UP, DOWN]
 userInput = [0,0,0,0,0,0,0]
+InputHandler.userInput = userInput
 
 pygame.time.set_timer(pygame.USEREVENT, 10)
 
 #PLAYING THINGS=============================================
-sinceRotateUpdate = 0
-sinceDropUpdate = 0
-sinceYUpdate = 0
-sinceCollisionUpdate = 0
-rotateUpdateRate = 6
-dropUpdateRate = 6
-yUpdateRate = 2
-##CHANGE COLLISION UPDATE RATE
-collisionUpdateRate = max(rotateUpdateRate, dropUpdateRate, yUpdateRate)
 playing = True
 active = None
 stored = None
 switched = False
+
+yUpdateRate = 2
+sinceYUpdate = 0
+
 #PLAYAGAIN THINGS===========================================
 playagaintext = myfont.render("Play again? (Y/N))", 1, (255,255,255))
 
@@ -92,8 +89,17 @@ def GetEvents():
                 userInput[0] = 0
             if event.key == pygame.K_RIGHT:
                 userInput[1] = 0
+            if event.key == pygame.K_UP:
+                userInput[2] = 0
             if event.key == pygame.K_DOWN:
                 userInput[3] = 0
+            if event.key == pygame.K_SPACE:
+                userInput[4] = 0
+            if event.key == pygame.K_y:
+                userInput[5] = 0
+            if event.key == pygame.K_RSHIFT:
+                userInput[6] = 0
+            
 #END Get Events 
 
 
@@ -101,9 +107,11 @@ def GetEvents():
 while running:
     milliseconds = clock.tick(FPS+1)
     seconds = milliseconds / 1000.0 #seconds since last frame
+    sinceYUpdate += seconds
 
     
     GetEvents()
+    InputHandler.update()
     
     #frame business
     frames+=1
@@ -114,50 +122,35 @@ while running:
         label = myfont.render(str(actualFPS), 1, (255,255,255))
     
     if(playing):
-        sinceDropUpdate += seconds
-        sinceYUpdate += seconds
-        sinceRotateUpdate += seconds
-        sinceCollisionUpdate += seconds
+
     #UPDATE===============================================
 
     #PLAYING STATE====================================
     
         if board.active == None:
             board.create()
-            userInput[6] = 0 ##RSHIFT
             switched = False
         #Drop piece by one
-        if (sinceYUpdate > (1.0/yUpdateRate)):
+        if (sinceYUpdate >= 1.0/yUpdateRate):
             board.actIncY()
             sinceYUpdate = 0
         #Or move left/right
-        elif (userInput[0] or userInput[1]):#sinceXUpdate > (1.0/xUpdateRate)):
-            board.actMoveX(userInput[1]-userInput[0])
-            userInput[0] = 0
-            userInput[1] = 0
-        #Drop Piece LOGIC IS FLAWED. THIS INPUT THING SUCKS timing
-        if (sinceDropUpdate < (1.0/dropUpdateRate)):
-            userInput[4] = 0
-        if (userInput[4] == 1):
+        if (InputHandler.right_button or InputHandler.left_button):
+            board.actMoveX(InputHandler.right_button - InputHandler.left_button)
+        #Drop piece
+        if (InputHandler.drop_button):
             board.actDrop()
-            userInput[4] = 0
-            sinceDropUpdate = 0
         #Moving down
-        if userInput[3]:
+        if (InputHandler.down_button):
             board.actIncY()
-            userInput[3] = 0
         #Rotate Piece
-        if (sinceRotateUpdate > 1.0/rotateUpdateRate):
-            if userInput[2]:
-                board.actRotate()
-                userInput[2] = 0
-            sinceRotateUpdate = 0
+        if (InputHandler.rotate_button):
+            board.actRotate()
 
-        ##Switching with Stored Logic is missing
-        if (userInput[6]):
+        ##Switching with Stored
+        if (InputHandler.store_button and not switched):
             board.store()
             switched = True
-            userInput[6] = 0
             
         board.update()
         if board.gameOver:

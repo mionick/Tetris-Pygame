@@ -241,6 +241,8 @@ class Board():
     ##will make the tet part of the board and destroy the current active
         if tet == None:
             tet = Board.active
+        if tet == None:
+            return
         posx = tet.x
         posy = tet.y
         for i in range(len(tet.shape)): #Each line of shape
@@ -258,11 +260,12 @@ class Board():
         Board.active = Tetromino(3, 0, None)
 
     def actIncY(self):
+        if Board.active == None:
+            return
         Board.active.y += 1
         if(self.collideY()):
             Board.active.y -= 1
             self.absorb()
-            self.create()
 
     def actDecY(self):
         Board.active.y -= 1
@@ -276,11 +279,12 @@ class Board():
         Board.active.update(0, y)
 
     def actDrop(self):
+        if Board.active == None:
+            return
         while(not self.collideY()):
             Board.active.y += 1
         Board.active.y -= 1
         self.absorb()
-        self.create()
 
     def actRotate(self):
         success = True
@@ -288,7 +292,9 @@ class Board():
         tempPiece = Board.active.clone()
         tempPiece.rotate()
         
-
+        if (self.collideY(tempPiece)):
+            tempPiece.y = self.height - tempPiece.height
+            
         side = self.collideBorderX(tempPiece)
         if side == 0:
             pass
@@ -305,7 +311,7 @@ class Board():
 
     def store(self):
         Board.active, Board.stored = Board.stored, Board.active
-        if (Board.active == None):
+        if Board.active == None:
             self.create()
         Board.active.setPos(3, 0)
         
