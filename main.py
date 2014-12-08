@@ -1,4 +1,5 @@
 import sys, os
+from enum import Enum
 from GameObjects import *
 from pygame import *
 import InputHandler
@@ -12,10 +13,14 @@ pygame.key.set_repeat(50, 50)
 #CONSTANTS===================================================
 WIDTH = 10
 HEIGHT = 22
+class GameState(Enum):
+    start = 0
+    playing = 1
+    playagain = 2
+    paused = 3
 
 
 #GLOBAL VARIABLES============================================
-dropPS = 5
 
 screen = pygame.display.set_mode(((WIDTH+3)*BLOCKSIZE, (HEIGHT+2)*BLOCKSIZE))
 #ball = pygame.image.load(os.path.join(os.path.curdir, "assets", "ball.gif"))
@@ -34,6 +39,7 @@ startTime = pygame.time.get_ticks()
 
 myfont = pygame.font.SysFont("monospace", 15)
 titlefont = pygame.font.SysFont("monospace", 20)
+linefont = pygame.font.SysFont("monospace", 50)
 
 # render text
 label = myfont.render(str(FPS), 1, (255,255,255))
@@ -41,25 +47,21 @@ label = myfont.render(str(FPS), 1, (255,255,255))
 
 
 #input array
-#[LEFT, RIGHT, UP, DOWN]
+#[LEFT, RIGHT, UP, DOWN, SPACE, Y, RSHIFT, LSHIFT]
 userInput = [0,0,0,0,0,0,0,0]
 InputHandler.userInput = userInput
 
 pygame.time.set_timer(pygame.USEREVENT, 10)
 
 #PLAYING THINGS=============================================
-playing = True
-playagain = False
-paused = False
-active = None
-stored = None
+current_state = GameState.playing
 switched = False
 
 yUpdateRate = 2
 sinceYUpdate = 0
 
 #PLAYAGAIN THINGS===========================================
-playagaintext = myfont.render("Play again? (Y/N))", 1, (255,255,255))
+playagaintext = myfont.render("Play again? (Y/N)", 1, (255,255,255))
 pausedtext = titlefont.render("PAUSED", 1, (255,255,255))
 
 
@@ -129,7 +131,7 @@ while running:
         startTime = pygame.time.get_ticks()
         label = myfont.render(str(actualFPS), 1, (255,255,255))
     
-    if(playing):
+    if (current_state == GameState.playing):
 
     #UPDATE===============================================
 
@@ -138,6 +140,7 @@ while running:
         if board.active == None:
             board.create()
             switched = False
+            sinceYUpdate = 0
         #Drop piece by one
         if (sinceYUpdate >= 1.0/yUpdateRate):
             board.actIncY()
@@ -160,36 +163,28 @@ while running:
             board.store()
             switched = True
         if (InputHandler.pause_button):
-            paused = True
-            playing = False
+            current_state = GameState.paused
             
         board.update()
         if board.gameOver:
-            playing = False
-            playagain = True
-            userInput[5] = 0
+            current_state = GameState.playagain
             
-    elif playagain:#END OF PLAYING STATE
+    elif (current_state == GameState.playagain):#END OF PLAYING STATE
         if InputHandler.accept_button:
-            playing = True
-            playagian = False
-            print(paused)
-            stored = None
+            current_state = GameState.playing
             board.clear()
-            userInput[5]=0
-            userInput[4]=0
-    elif paused:
+    elif (current_state == GameState.paused):
         if InputHandler.pause_button:
-            playing = True
-            paused = False
+            current_state= GameState.playing
         
     #RENDER===============================================
     screen.fill((0,0,0))
-    if playing:
+    if current_state == GameState.playing:
         board.render(screen, 3, 1)
-    elif playagain:
+    elif current_state == GameState.playagain:
+        board.render(screen, 3, 1)
         screen.blit(playagaintext, (10,9*BLOCKSIZE))
-    elif paused:
+    elif current_state == GameState.paused:
         board.render(screen, 3, 1)
         screen.blit(pausedtext, (10,9*BLOCKSIZE))
         

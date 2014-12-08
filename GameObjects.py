@@ -1,4 +1,5 @@
 import pygame
+pygame.font.init()
 import random
 
 random.seed()
@@ -160,12 +161,18 @@ class Board():
     active = None
     shadow = None
     stored = None
+    lines_total = 0
+    linefont = pygame.font.SysFont("monospace", 50)
+    line_image = None
+
     ##BOARD METHODS==================================================================
     
     def __init__(self, width, height):
         Board.board = [[0]*width for i in range(height)]
         self.width = width
         self.height = height
+        Board.line_image = Board.linefont.render(str(Board.lines_total),1, (255,255,255))
+
 
     def clear(self):
         Board.board = [[0]*self.width for i in range(self.height)]
@@ -184,6 +191,9 @@ class Board():
         if Board.stored != None:
             Board.stored.render(screen, -Board.stored.x, -Board.stored.y)
 
+        #Render Num of lines on screen:
+        screen.blit(Board.line_image, (BLOCKSIZE/2, 12*BLOCKSIZE))
+
         
         
     def update(self):
@@ -195,10 +205,9 @@ class Board():
                 count+=1
         for i in range(count):
             Board.board.insert(0, [0]*self.width)
-
-        if (Board.gameOver):
-            Board.active = None
-        return count
+        Board.lines_total += count
+        if count > 0:
+            Board.line_image = Board.linefont.render(str(Board.lines_total),1, (255,255,255))
 
     def collideBorderX(self, tet=None):
         #returns 1 for left, 2 for right, 0 for neither
@@ -231,7 +240,7 @@ class Board():
                 for j in range(len(tet.shape[i])):     #Each 1 or zero in shape
                     if (tet.shape[i][j] != 0)  and (self.board[tet.y+i][tet.x+j] != 0):
                         collide = True
-        if (collide and (tet.y <= 1)):
+        if (collide and (tet.y <= 0)):
             Board.gameOver = True
         return collide
 
@@ -282,9 +291,13 @@ class Board():
             self.absorb()
 
     def actDecY(self):
+        if Board.active == None:
+            return
         Board.active.y -= 1
         
     def actMoveX(self, x):
+        if Board.active == None:
+            return
         Board.active.update(x, 0)
         if (self.collideBorderX() or self.collideX()):
             Board.active.update(-x, 0)
@@ -310,13 +323,12 @@ class Board():
         self.absorb()
 
     def actRotate(self):
+        if Board.active == None:
+            return
         success = True
         edge = False
         tempPiece = Board.active.clone()
         tempPiece.rotate()
-        
-        if (self.collideY(tempPiece)):
-            tempPiece.y = self.height - tempPiece.height
             
         side = self.collideBorderX(tempPiece)
         if side == 0:
@@ -325,6 +337,9 @@ class Board():
             tempPiece.x = 0
         elif side == 2:
             tempPiece.x = self.width - tempPiece.width
+
+        if tempPiece.y > self.height - tempPiece.height:
+            tempPiece.setY(self.height - tempPiece.height)
         if (self.collideX(tempPiece)):
             success = False
         
