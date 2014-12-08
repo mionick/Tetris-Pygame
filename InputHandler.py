@@ -28,7 +28,7 @@ def UpdateDrop(cur_val):
         
 
 right_button = 0
-_x_delay = 5
+_x_delay = 6
 _right_count = 0
 
 def UpdateRight(cur_val):
@@ -104,13 +104,32 @@ def UpdateStore(cur_val):
 accept_button = False
 
 def UpdateAccept(cur_val):
+    global accept_button
     accept_button = cur_val
+
+pause_button = False
+_pause_count = 0
+_pause_delay = 10
+
+def UpdatePause(cur_val):
+    global pause_button
+    global _pause_count
+    if (cur_val == 0):
+        pause_button = False
+        _pause_count = 0
+    else:
+        if (_pause_count == 0):
+            pause_button = True
+        else:
+            pause_button = False
+        _pause_count = (_pause_count+1) % _pause_delay
         
 #Does not need delay ass it cannot be repeated.
 
+updates = [UpdateLeft, UpdateRight, UpdateRotate, UpdateDown, UpdateDrop, UpdateAccept, UpdateStore, UpdatePause]
+
 def update():
     #moveRight
-    updates = [UpdateLeft, UpdateRight, UpdateRotate, UpdateDown, UpdateDrop, UpdateAccept, UpdateStore]
     for i in range(len(userInput)):
         updates[i](userInput[i])
 

@@ -33,6 +33,7 @@ frames = 0
 startTime = pygame.time.get_ticks()
 
 myfont = pygame.font.SysFont("monospace", 15)
+titlefont = pygame.font.SysFont("monospace", 20)
 
 # render text
 label = myfont.render(str(FPS), 1, (255,255,255))
@@ -41,13 +42,15 @@ label = myfont.render(str(FPS), 1, (255,255,255))
 
 #input array
 #[LEFT, RIGHT, UP, DOWN]
-userInput = [0,0,0,0,0,0,0]
+userInput = [0,0,0,0,0,0,0,0]
 InputHandler.userInput = userInput
 
 pygame.time.set_timer(pygame.USEREVENT, 10)
 
 #PLAYING THINGS=============================================
 playing = True
+playagain = False
+paused = False
 active = None
 stored = None
 switched = False
@@ -57,6 +60,7 @@ sinceYUpdate = 0
 
 #PLAYAGAIN THINGS===========================================
 playagaintext = myfont.render("Play again? (Y/N))", 1, (255,255,255))
+pausedtext = titlefont.render("PAUSED", 1, (255,255,255))
 
 
 #FUNCTION DEFINITIONS=======================================
@@ -83,6 +87,8 @@ def GetEvents():
                 userInput[5] = 1
             if event.key == pygame.K_RSHIFT:
                 userInput[6] = 1
+            if event.key == pygame.K_LSHIFT:
+                userInput[7] = 1
                 
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT:
@@ -99,6 +105,8 @@ def GetEvents():
                 userInput[5] = 0
             if event.key == pygame.K_RSHIFT:
                 userInput[6] = 0
+            if event.key == pygame.K_LSHIFT:
+                userInput[7] = 0
             
 #END Get Events 
 
@@ -151,28 +159,39 @@ while running:
         if (InputHandler.store_button and not switched):
             board.store()
             switched = True
+        if (InputHandler.pause_button):
+            paused = True
+            playing = False
             
         board.update()
         if board.gameOver:
             playing = False
             playagain = True
             userInput[5] = 0
+            
     elif playagain:#END OF PLAYING STATE
-        if userInput[5]:
+        if InputHandler.accept_button:
             playing = True
             playagian = False
+            print(paused)
             stored = None
             board.clear()
             userInput[5]=0
             userInput[4]=0
-    else:
-        pass
+    elif paused:
+        if InputHandler.pause_button:
+            playing = True
+            paused = False
+        
     #RENDER===============================================
     screen.fill((0,0,0))
     if playing:
         board.render(screen, 3, 1)
     elif playagain:
         screen.blit(playagaintext, (10,9*BLOCKSIZE))
+    elif paused:
+        board.render(screen, 3, 1)
+        screen.blit(pausedtext, (10,9*BLOCKSIZE))
         
 
         
