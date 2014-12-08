@@ -164,6 +164,8 @@ class Board():
     lines_total = 0
     linefont = pygame.font.SysFont("monospace", 50)
     line_image = None
+    fall_rate = 2
+    touch_count = 0
 
     ##BOARD METHODS==================================================================
     
@@ -179,6 +181,10 @@ class Board():
         Board.active = None
         Board.stored = None
         Board.gameOver = False
+        Board.fall_rate = 2
+        Board.lines_total = 0
+        Board.line_image = Board.linefont.render(str(Board.lines_total),1, (255,255,255))
+        
 
     def render(self, screen, offX, offY):
         for i in range(len(Board.board)):       #For each row
@@ -208,7 +214,7 @@ class Board():
         Board.lines_total += count
         if count > 0:
             Board.line_image = Board.linefont.render(str(Board.lines_total),1, (255,255,255))
-
+            Board.fall_rate+= count/10.0
     def collideBorderX(self, tet=None):
         #returns 1 for left, 2 for right, 0 for neither
         #Defaults to using active
@@ -287,8 +293,11 @@ class Board():
             return
         Board.active.y += 1
         if(self.collideY()):
-            Board.active.y -= 1
+            self.actDecY()
+            Board.touch_count+=1
+        if(Board.touch_count >Board.fall_rate):
             self.absorb()
+            Board.touch_count = 0
 
     def actDecY(self):
         if Board.active == None:

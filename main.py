@@ -57,7 +57,7 @@ pygame.time.set_timer(pygame.USEREVENT, 10)
 current_state = GameState.playing
 switched = False
 
-yUpdateRate = 2
+
 sinceYUpdate = 0
 
 #PLAYAGAIN THINGS===========================================
@@ -141,8 +141,13 @@ while running:
             board.create()
             switched = False
             sinceYUpdate = 0
+
+        ##Switching with Stored
+        if (InputHandler.store_button and not switched):
+            board.store()
+            switched = True
         #Drop piece by one
-        if (sinceYUpdate >= 1.0/yUpdateRate):
+        if (sinceYUpdate >= 1.0/board.fall_rate):
             board.actIncY()
             sinceYUpdate = 0
         #Or move left/right
@@ -157,11 +162,6 @@ while running:
         #Rotate Piece
         if (InputHandler.rotate_button):
             board.actRotate()
-
-        ##Switching with Stored
-        if (InputHandler.store_button and not switched):
-            board.store()
-            switched = True
         if (InputHandler.pause_button):
             current_state = GameState.paused
             
