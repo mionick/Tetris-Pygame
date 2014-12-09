@@ -28,7 +28,8 @@ def UpdateDrop(cur_val):
         
 
 right_button = 0
-_x_delay = 6
+_x_delay = 5
+_x_offset = 13
 _right_count = 0
 
 def UpdateRight(cur_val):
@@ -38,11 +39,13 @@ def UpdateRight(cur_val):
         right_button = 0
         _right_count = 0
     else:
-        if (_right_count == 0):
+        if (_right_count == 0 or _right_count == _x_offset):
             right_button = 1
         else:
             right_button = 0
-        _right_count = (_right_count+1) % _x_delay
+        _right_count += 1
+        if (_right_count > _x_offset):
+            _right_count = _x_offset + (_right_count - _x_offset)%_x_delay
 
 left_button = 0
 _left_count = 0
@@ -54,11 +57,13 @@ def UpdateLeft(cur_val):
         left_button = 0
         _left_count = 0
     else:
-        if (_left_count == 0):
+        if (_left_count == 0 or _left_count == _x_offset):
             left_button = 1
         else:
             left_button = 0
-        _left_count = (_left_count+1) % _x_delay
+        _left_count += 1
+        if (_left_count > _x_offset):
+            _left_count = _x_offset + (_left_count - _x_offset)%_x_delay
 
 down_button = 0
 _down_delay = 6
@@ -78,7 +83,7 @@ def UpdateDown(cur_val):
         _down_count = (_down_count+1) % _down_delay
 
 rotate_button = False
-_rotate_delay = 9
+_rotate_delay = 17
 _rotate_count = 0
 
 def UpdateRotate(cur_val):

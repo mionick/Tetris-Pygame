@@ -1,8 +1,9 @@
 import sys, os
 from enum import Enum
-from GameObjects import *
-from pygame import *
+from Board import Board
+import pygame
 import InputHandler
+from Constants import *
 
 pygame.init()
 pygame.key.set_repeat(50, 50)
@@ -75,21 +76,21 @@ def GetEvents():
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 running = False # user pressed ESC
-            if event.key == pygame.K_LEFT:
+            if event.key == pygame.K_LEFT:#LEFT
                 userInput[0] = 1
-            if event.key == pygame.K_RIGHT:
+            if event.key == pygame.K_RIGHT:#RIGHT
                 userInput[1] = 1
-            if event.key == pygame.K_UP:
+            if event.key == pygame.K_UP:#ROTATE
                 userInput[2] = 1
-            if event.key == pygame.K_DOWN:
+            if event.key == pygame.K_DOWN:#DOWN
                 userInput[3] = 1
-            if event.key == pygame.K_SPACE:
+            if event.key == pygame.K_SPACE:#DROP
                 userInput[4] = 1
-            if event.key == pygame.K_y:
+            if event.key == pygame.K_y:#ACCEPT
                 userInput[5] = 1
-            if event.key == pygame.K_RSHIFT:
+            if event.key == pygame.K_RSHIFT:#SWITCHPIECE
                 userInput[6] = 1
-            if event.key == pygame.K_LSHIFT:
+            if event.key == pygame.K_LSHIFT:#PAUSE
                 userInput[7] = 1
                 
         if event.type == pygame.KEYUP:
@@ -146,6 +147,7 @@ while running:
         if (InputHandler.store_button and not switched):
             board.store()
             switched = True
+            continue
         #Drop piece by one
         if (sinceYUpdate >= 1.0/board.fall_rate):
             board.actIncY()
