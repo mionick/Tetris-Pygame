@@ -1,5 +1,4 @@
 import pygame
-pygame.font.init()
 
 from Constants import *
 from Tetromino import *
@@ -11,11 +10,16 @@ class Board():
     active = None
     shadow = None
     stored = None
-    lines_total = 0
-    linefont = pygame.font.SysFont("monospace", 50)
-    line_image = None
     fall_rate = 2
     touch_count = 0
+    
+
+    lines_total = 0
+    level = 1
+    next_level = 5
+    combo_length = 0
+    points = 0
+    
 
     ##BOARD METHODS==================================================================
     
@@ -23,8 +27,7 @@ class Board():
         Board.board = [[0]*width for i in range(height)]
         self.width = width
         self.height = height
-        Board.line_image = Board.linefont.render(str(Board.lines_total),1, (255,255,255))
-
+       
 
     def clear(self):
         Board.board = [[0]*self.width for i in range(self.height)]
@@ -33,8 +36,11 @@ class Board():
         Board.gameOver = False
         Board.fall_rate = 2
         Board.lines_total = 0
-        Board.line_image = Board.linefont.render(str(Board.lines_total),1, (255,255,255))
+        Board.level = 1
+        Board.next_level = 5
         
+        Board.combo_length = 0
+        Board.points = 0
 
     def render(self, screen, offX, offY):
         for i in range(len(Board.board)):       #For each row
@@ -47,24 +53,58 @@ class Board():
         if Board.stored != None:
             Board.stored.render(screen, -Board.stored.x, -Board.stored.y)
 
-        #Render Num of lines on screen:
-        screen.blit(Board.line_image, (BLOCKSIZE/2, 12*BLOCKSIZE))
-
-        
         
     def update(self):
         #clears Lines
         count = 0
-        for i in Board.board:
-            if all(i):
-                Board.board.remove(i)
+        to_be_removed = []
+        #clearing lines
+        for i in reversed(range(len(Board.board))):
+            if all(Board.board[i]):
+                to_be_removed.append(i)
                 count+=1
+        for i in to_be_removed:
+            Board.board.pop(i)
+        
         for i in range(count):
             Board.board.insert(0, [0]*self.width)
-        Board.lines_total += count
+        
+        #update score
+        self.score(count)
+        #updating image data
         if count > 0:
-            Board.line_image = Board.linefont.render(str(Board.lines_total),1, (255,255,255))
             Board.fall_rate+= count/10.0
+            if (Board.lines_total >= Board.next_level):
+                Board.level += 1
+                Board.next_level += 5*Board.level
+                print("level: " + str(Board.level))
+                print("lines: " + str(Board.lines_total))
+                print("To next: " + str(Board.next_level))
+                print("score: " +str(Board.points))
+
+
+    def score(self, lines):
+        if (lines == 1):
+            Board.points += 100*Board.level
+            Board.lines_total +=  1
+        elif (lines == 2):
+            Board.points += 300*Board.level
+            Board.lines_total += 3
+        elif (lines == 3):
+            Board.points += 500*Board.level
+            Board.lines_total += 5
+        elif (lines == 4):
+            Board.points += 800*Board.level
+            Board.lines_total += 8
+
+        if (lines == 0):
+            Board.combo_length = 0
+        else:
+            Board.combo_length+=1
+            Board.points += Board.combo_length * 50 * Board.level
+            print(Board.combo_length * 50 * Board.level)
+            
+            
     def collideBorderX(self, tet=None):
         #returns 1 for left, 2 for right, 0 for neither
         #Defaults to using active
@@ -128,6 +168,8 @@ class Board():
                     Board.board[posy+i][posx+j] = tet.kind
 
         Board.active = None
+
+        self.update()
      
     ##ACTIVE TET METHODS=============================================        
     def clearActive(self):

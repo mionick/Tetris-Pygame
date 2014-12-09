@@ -4,6 +4,10 @@ from Board import Board
 import pygame
 import InputHandler
 from Constants import *
+from UserProfiles import load_profile, buttons
+
+#Initializing================================================
+load_profile("colin")
 
 pygame.init()
 pygame.key.set_repeat(50, 50)
@@ -74,23 +78,23 @@ def GetEvents():
     for event in pygame.event.get():
         if event.type == pygame.QUIT: running = False
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
+            if event.key in buttons[0]:
                 running = False # user pressed ESC
-            if event.key == pygame.K_LEFT:#LEFT
+            if event.key in buttons[1]:#LEFT
                 userInput[0] = 1
-            if event.key == pygame.K_RIGHT:#RIGHT
+            if event.key in buttons[2]:#RIGHT
                 userInput[1] = 1
-            if event.key == pygame.K_UP:#ROTATE
+            if event.key in buttons[3]:#ROTATE
                 userInput[2] = 1
-            if event.key == pygame.K_DOWN:#DOWN
+            if event.key in buttons[4]:#DOWN
                 userInput[3] = 1
-            if event.key == pygame.K_SPACE:#DROP
+            if event.key in buttons[5]:#DROP
                 userInput[4] = 1
-            if event.key == pygame.K_y:#ACCEPT
+            if event.key in buttons[6]:#ACCEPT
                 userInput[5] = 1
-            if event.key == pygame.K_RSHIFT:#SWITCHPIECE
+            if event.key in buttons[7]:#SWITCHPIECE
                 userInput[6] = 1
-            if event.key == pygame.K_LSHIFT:#PAUSE
+            if event.key in buttons[8]:#PAUSE
                 userInput[7] = 1
                 
         if event.type == pygame.KEYUP:
@@ -98,7 +102,7 @@ def GetEvents():
                 userInput[0] = 0
             if event.key == pygame.K_RIGHT:
                 userInput[1] = 0
-            if event.key == pygame.K_UP:
+            if event.key == pygame.K_UP or event.key == pygame.K_z:
                 userInput[2] = 0
             if event.key == pygame.K_DOWN:
                 userInput[3] = 0
@@ -167,7 +171,6 @@ while running:
         if (InputHandler.pause_button):
             current_state = GameState.paused
             
-        board.update()
         if board.gameOver:
             current_state = GameState.playagain
             
