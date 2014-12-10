@@ -50,8 +50,6 @@ class Board():
         if Board.active != None:
             Board.shadow.render(screen, offX, offY)
             Board.active.render(screen, offX, offY)
-        if Board.stored != None:
-            Board.stored.render(screen, -Board.stored.x, -Board.stored.y)
 
         
     def update(self):
@@ -84,25 +82,28 @@ class Board():
 
 
     def score(self, lines):
+        new_points = 0
         if (lines == 1):
-            Board.points += 100*Board.level
+            new_points += 100*Board.level
             Board.lines_total +=  1
         elif (lines == 2):
-            Board.points += 300*Board.level
+            new_points += 300*Board.level
             Board.lines_total += 3
         elif (lines == 3):
-            Board.points += 500*Board.level
+            new_points += 500*Board.level
             Board.lines_total += 5
         elif (lines == 4):
-            Board.points += 800*Board.level
+            new_points += 800*Board.level
             Board.lines_total += 8
 
         if (lines == 0):
             Board.combo_length = 0
         else:
             Board.combo_length+=1
-            Board.points += Board.combo_length * 50 * Board.level
-            print(Board.combo_length * 50 * Board.level)
+            new_points += Board.combo_length * 50 * Board.level
+            print(new_points)
+        Board.points+=new_points
+        return new_points
             
             
     def collideBorderX(self, tet=None):
@@ -223,13 +224,16 @@ class Board():
         Board.active.y -= 1
         self.absorb()
 
-    def actRotate(self):
+    def actRotate(self, wise = 1):
         if Board.active == None:
             return
         success = True
         edge = False
         tempPiece = Board.active.clone()
-        tempPiece.rotate()
+        if wise == 1:
+            tempPiece.rotate()
+        else:
+            tempPiece.rotate_counter()
             
         side = self.collideBorderX(tempPiece)
         if side == 0:

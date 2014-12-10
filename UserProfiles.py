@@ -7,7 +7,8 @@ def load_profile(profile = None):
         buttons.append(set([pygame.K_ESCAPE]))  #CLOSE
         buttons.append(set([pygame.K_LEFT]))    #LEFT
         buttons.append(set([pygame.K_RIGHT]))   #RIGHT
-        buttons.append(set([pygame.K_UP, pygame.K_z]))      #ROTATE
+        buttons.append(set([pygame.K_UP, pygame.K_x]))      #ROTATE
+        buttons.append(set([pygame.K_z]))      #ROTATE_CC
         buttons.append(set([pygame.K_DOWN]))    #DOWN
         buttons.append(set([pygame.K_SPACE]))   #DROP
         buttons.append(set([pygame.K_y]))       #ACCEPT
@@ -17,7 +18,8 @@ def load_profile(profile = None):
         buttons.append(set([pygame.K_ESCAPE]))  #CLOSE
         buttons.append(set([pygame.K_LEFT]))    #LEFT
         buttons.append(set([pygame.K_RIGHT]))   #RIGHT
-        buttons.append(set([pygame.K_UP]))      #ROTATE
+        buttons.append(set([pygame.K_UP, pygame.K_x]))      #ROTATE
+        buttons.append(set([pygame.K_z]))      #ROTATE_CC
         buttons.append(set([pygame.K_DOWN]))    #DOWN
         buttons.append(set([pygame.K_SPACE]))   #DROP
         buttons.append(set([pygame.K_y]))       #ACCEPT

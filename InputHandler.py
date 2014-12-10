@@ -82,7 +82,7 @@ def UpdateDown(cur_val):
             down_button = 0
         _down_count = (_down_count+1) % _down_delay
 
-rotate_button = False
+rotate_button = 0
 _rotate_delay = 17
 _rotate_count = 0
 
@@ -90,13 +90,13 @@ def UpdateRotate(cur_val):
     global rotate_button
     global _rotate_count
     if (cur_val == 0):
-        rotate_button = False
+        rotate_button = 0
         _rotate_count = 0
     else:
         if (_rotate_count == 0):
-            rotate_button = True
+            rotate_button = cur_val
         else:
-            rotate_button = False
+            rotate_button = 0
         _rotate_count = (_rotate_count+1) % _rotate_delay
 
 store_button = False

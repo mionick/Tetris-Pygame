@@ -10,10 +10,8 @@ from UserProfiles import load_profile, buttons
 load_profile("colin")
 
 pygame.init()
-pygame.key.set_repeat(50, 50)
 
-##Board will be 10 wide by 24 high.
-##each block will be 15*15 pixels for now.
+
 
 #CONSTANTS===================================================
 WIDTH = 10
@@ -27,7 +25,7 @@ class GameState(Enum):
 
 #GLOBAL VARIABLES============================================
 
-screen = pygame.display.set_mode(((WIDTH+3)*BLOCKSIZE, (HEIGHT+2)*BLOCKSIZE))
+screen = pygame.display.set_mode(((WIDTH+7)*BLOCKSIZE, (HEIGHT+2)*BLOCKSIZE))
 #ball = pygame.image.load(os.path.join(os.path.curdir, "assets", "ball.gif"))
 
 #SPRITES=====================================================
@@ -42,17 +40,17 @@ actualFPS = 60
 frames = 0
 startTime = pygame.time.get_ticks()
 
-myfont = pygame.font.SysFont("monospace", 15)
-titlefont = pygame.font.SysFont("monospace", 20)
-linefont = pygame.font.SysFont("monospace", 50)
+font15 = pygame.font.SysFont("monospace", 15)
+font20 = pygame.font.SysFont("monospace", 20)
+font50 = pygame.font.SysFont("monospace", 50)
 
 # render text
-label = myfont.render(str(FPS), 1, (255,255,255))
+fps_image = font15.render(str(FPS), 1, (255,255,255))
 
 
 
 #input array
-#[LEFT, RIGHT, UP, DOWN, SPACE, Y, RSHIFT, LSHIFT]
+#[LEFT, RIGHT, ROTATE_C, ROTATE_CC, DOWN, DROP, ACCEPT, STORE, PAUSE]
 userInput = [0,0,0,0,0,0,0,0]
 InputHandler.userInput = userInput
 
@@ -66,8 +64,8 @@ switched = False
 sinceYUpdate = 0
 
 #PLAYAGAIN THINGS===========================================
-playagaintext = myfont.render("Play again? (Y/N)", 1, (255,255,255))
-pausedtext = titlefont.render("PAUSED", 1, (255,255,255))
+playagain_text = font15.render("Play again? (Y/N)", 1, (255,255,255))
+paused_text = font20.render("PAUSED", 1, (255,255,255))
 
 
 #FUNCTION DEFINITIONS=======================================
@@ -84,38 +82,68 @@ def GetEvents():
                 userInput[0] = 1
             if event.key in buttons[2]:#RIGHT
                 userInput[1] = 1
-            if event.key in buttons[3]:#ROTATE
+            if event.key in buttons[3]:#ROTATE_C
                 userInput[2] = 1
-            if event.key in buttons[4]:#DOWN
+            if event.key in buttons[4]:#ROTATE_CC
+                userInput[2] = -1
+            if event.key in buttons[5]:#DOWN
                 userInput[3] = 1
-            if event.key in buttons[5]:#DROP
+            if event.key in buttons[6]:#DROP
                 userInput[4] = 1
-            if event.key in buttons[6]:#ACCEPT
+            if event.key in buttons[7]:#ACCEPT
                 userInput[5] = 1
-            if event.key in buttons[7]:#SWITCHPIECE
+            if event.key in buttons[8]:#SWITCHPIECE
                 userInput[6] = 1
-            if event.key in buttons[8]:#PAUSE
+            if event.key in buttons[9]:#PAUSE
                 userInput[7] = 1
                 
         if event.type == pygame.KEYUP:
-            if event.key == pygame.K_LEFT:
+            if event.key in buttons[0]:
+                running = False # user pressed ESC
+            if event.key in buttons[1]:#LEFT
                 userInput[0] = 0
-            if event.key == pygame.K_RIGHT:
+            if event.key in buttons[2]:#RIGHT
                 userInput[1] = 0
-            if event.key == pygame.K_UP or event.key == pygame.K_z:
+            if event.key in buttons[3]:#ROTATE_C
                 userInput[2] = 0
-            if event.key == pygame.K_DOWN:
+            if event.key in buttons[4]:#ROTATE_CC
+                userInput[2] = 0
+            if event.key in buttons[5]:#DOWN
                 userInput[3] = 0
-            if event.key == pygame.K_SPACE:
+            if event.key in buttons[6]:#DROP
                 userInput[4] = 0
-            if event.key == pygame.K_y:
+            if event.key in buttons[7]:#ACCEPT
                 userInput[5] = 0
-            if event.key == pygame.K_RSHIFT:
+            if event.key in buttons[8]:#SWITCHPIECE
                 userInput[6] = 0
-            if event.key == pygame.K_LSHIFT:
+            if event.key in buttons[9]:#PAUSE
                 userInput[7] = 0
             
-#END Get Events 
+#END Get Events
+
+#RENDER FUNCTION + VARIABLES
+points_image = font20.render("Score:" + str(board.points), 1, (255, 255, 255))
+level_image1 = font20.render("Level:", 1, (255, 255, 255))
+level_image2 = font50.render(str(board.level), 1, (255, 255, 255))
+lines_image = font20.render("lines: " + str(board.lines_total), 1, (255, 255, 255))
+storage_image = font20.render("Stored:", 1, (255, 255, 255))
+
+def render_screen():
+    board.render(screen, 6, 1)
+    level_image2 = font50.render(str(board.level), 1, (255, 255, 255))
+    points_image = font20.render("Score:" + str(board.points), 1, (255, 255, 255))
+    lines_image = font20.render("lines: " + str(board.lines_total), 1, (255, 255, 255))
+    
+    screen.blit(level_image1, (BLOCKSIZE, BLOCKSIZE))
+    screen.blit(level_image2, (BLOCKSIZE, 2*BLOCKSIZE))
+    screen.blit(points_image, (BLOCKSIZE, 4*BLOCKSIZE))
+    screen.blit(lines_image, (BLOCKSIZE, 5*BLOCKSIZE))
+
+    screen.blit(storage_image, (BLOCKSIZE, 19*BLOCKSIZE)) 
+    if board.stored != None:
+        board.stored.render(screen, 1-board.stored.x, 20-board.stored.y)
+    
+    
 
 
 #MAIN LOOP======================================================
@@ -134,7 +162,7 @@ while running:
         actualFPS = frames
         frames=0
         startTime = pygame.time.get_ticks()
-        label = myfont.render(str(actualFPS), 1, (255,255,255))
+        fps_image = font15.render(str(actualFPS), 1, (255,255,255))
     
     if (current_state == GameState.playing):
 
@@ -166,8 +194,8 @@ while running:
         if (InputHandler.down_button):
             board.actIncY()
         #Rotate Piece
-        if (InputHandler.rotate_button):
-            board.actRotate()
+        if (InputHandler.rotate_button != 0):
+            board.actRotate(InputHandler.rotate_button)
         if (InputHandler.pause_button):
             current_state = GameState.paused
             
@@ -185,17 +213,17 @@ while running:
     #RENDER===============================================
     screen.fill((0,0,0))
     if current_state == GameState.playing:
-        board.render(screen, 3, 1)
+        render_screen()
     elif current_state == GameState.playagain:
-        board.render(screen, 3, 1)
-        screen.blit(playagaintext, (10,9*BLOCKSIZE))
+        render_screen()
+        screen.blit(playagain_text, (10,9*BLOCKSIZE))
     elif current_state == GameState.paused:
-        board.render(screen, 3, 1)
-        screen.blit(pausedtext, (10,9*BLOCKSIZE))
+        render_screen()
+        screen.blit(paused_text, (10,9*BLOCKSIZE))
         
 
         
-    screen.blit(label, (10, 10))
+    screen.blit(fps_image, (10, 10))
     pygame.display.flip()
 #END MAIN LOOP (running)
 

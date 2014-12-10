@@ -103,6 +103,21 @@ class Tetromino():
             self.y-=self.anchor[0]-nextanchor[0]
             self.anchor = nextanchor
 
+    def rotate_counter(self):
+        self.width, self.height = self.height, self.width
+        self.shape = list(zip(*self.shape))[::-1]
+        nextanchor = anchors[(self.orientation-1) % 4]
+        self.orientation = (self.orientation-1) % 4
+        if(self.kind != 3 and self.kind != 4):
+            self.x+=self.anchor[1]-nextanchor[1]
+            self.y+=self.anchor[0]-nextanchor[0]
+            self.anchor = nextanchor
+        if(self.kind == 4):
+            nextanchor = lineanchors[(self.orientation-1) % 4]
+            self.x-=self.anchor[1]-nextanchor[1]
+            self.y-=self.anchor[0]-nextanchor[0]
+            self.anchor = nextanchor
+
     def clone(self):
         clone = Tetromino(self.x, self.y, self.kind)
         clone.shape = self.shape
