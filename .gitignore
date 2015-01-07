@@ -27,6 +27,14 @@ $RECYCLE.BIN/
 
 # Icon must end with two \r
 Icon
+dist/
+__pycache__\
+__pycache__
+Tetris.ico
+Tetris.png
+Tetris.psd
+
+setup.py
 
 # Thumbnails
 ._*

@@ -1,13 +1,13 @@
 import sys, os
-from enum import Enum
 from Board import Board
 import pygame
 import InputHandler
 from Constants import *
 from UserProfiles import load_profile, buttons
+import Menu
 
 #Initializing================================================
-load_profile("colin")
+load_profile()
 
 pygame.init()
 
@@ -16,17 +16,14 @@ pygame.init()
 #CONSTANTS===================================================
 WIDTH = 10
 HEIGHT = 22
-class GameState(Enum):
-    start = 0
-    playing = 1
-    playagain = 2
-    paused = 3
+P_WIDTH = (WIDTH+7)*BLOCKSIZE
+P_HEIGHT = (HEIGHT+2)*BLOCKSIZE
+
 
 
 #GLOBAL VARIABLES============================================
 
 screen = pygame.display.set_mode(((WIDTH+7)*BLOCKSIZE, (HEIGHT+2)*BLOCKSIZE))
-#ball = pygame.image.load(os.path.join(os.path.curdir, "assets", "ball.gif"))
 
 #SPRITES=====================================================
 
@@ -42,6 +39,7 @@ startTime = pygame.time.get_ticks()
 
 font15 = pygame.font.SysFont("monospace", 15)
 font20 = pygame.font.SysFont("monospace", 20)
+font30 = pygame.font.SysFont("monospace", 30)
 font50 = pygame.font.SysFont("monospace", 50)
 
 # render text
@@ -51,20 +49,20 @@ fps_image = font15.render(str(FPS), 1, (255,255,255))
 
 #input array
 #[LEFT, RIGHT, ROTATE_C, ROTATE_CC, DOWN, DROP, ACCEPT, STORE, PAUSE]
-userInput = [0,0,0,0,0,0,0,0]
+userInput = [0,0,0,0,0,0,0,0,0]
 InputHandler.userInput = userInput
 
 pygame.time.set_timer(pygame.USEREVENT, 10)
 
 #PLAYING THINGS=============================================
-current_state = GameState.playing
+current_state = GameState.MENU
 switched = False
 
 
 sinceYUpdate = 0
 
 #PLAYAGAIN THINGS===========================================
-playagain_text = font15.render("Play again? (Y/N)", 1, (255,255,255))
+playagain_text = font30.render("Play again? (Y/N)", 1, (255,255,255), (0,0,0))
 paused_text = font20.render("PAUSED", 1, (255,255,255))
 
 
@@ -96,6 +94,8 @@ def GetEvents():
                 userInput[6] = 1
             if event.key in buttons[9]:#PAUSE
                 userInput[7] = 1
+            if event.key in buttons[10]:#PAUSE
+                userInput[8] = 1
                 
         if event.type == pygame.KEYUP:
             if event.key in buttons[0]:
@@ -118,6 +118,8 @@ def GetEvents():
                 userInput[6] = 0
             if event.key in buttons[9]:#PAUSE
                 userInput[7] = 0
+            if event.key in buttons[10]:#PAUSE
+                userInput[8] = 0
             
 #END Get Events
 
@@ -128,7 +130,7 @@ level_image2 = font50.render(str(board.level), 1, (255, 255, 255))
 lines_image = font20.render("lines: " + str(board.lines_total), 1, (255, 255, 255))
 storage_image = font20.render("Stored:", 1, (255, 255, 255))
 
-def render_screen():
+def render_playing_screen():
     board.render(screen, 6, 1)
     level_image2 = font50.render(str(board.level), 1, (255, 255, 255))
     points_image = font20.render("Score:" + str(board.points), 1, (255, 255, 255))
@@ -142,9 +144,17 @@ def render_screen():
     screen.blit(storage_image, (BLOCKSIZE, 19*BLOCKSIZE)) 
     if board.stored != None:
         board.stored.render(screen, 1-board.stored.x, 20-board.stored.y)
-    
-    
 
+
+
+beard_image = pygame.image.load(os.path.join(os.path.curdir, "assets", "Tetris.png"))#"beard.bmp"))
+beard_image.convert()
+
+
+
+def render_menu():
+    screen.blit(beard_image, (P_WIDTH/2 - beard_image.get_width()/2,BLOCKSIZE))
+    Menu.render(screen, P_WIDTH/2 - button_width/2, 300)
 
 #MAIN LOOP======================================================
 while running:
@@ -163,11 +173,20 @@ while running:
         frames=0
         startTime = pygame.time.get_ticks()
         fps_image = font15.render(str(actualFPS), 1, (255,255,255))
-    
-    if (current_state == GameState.playing):
 
     #UPDATE===============================================
+    #MENU STATE======================================
+    if (current_state == GameState.MENU):
+        Menu.update(milliseconds)
 
+        if (InputHandler.rotate_button != 0):
+            Menu.cursor_pos_up()
+        if (InputHandler.down_button):
+            Menu.cursor_pos_down()
+        if (InputHandler.accept_button):
+            current_state = Menu.items[Menu.cursor_pos].attribute
+
+    elif (current_state == GameState.PLAYING):
     #PLAYING STATE====================================
     
         if board.active == None:
@@ -197,29 +216,40 @@ while running:
         if (InputHandler.rotate_button != 0):
             board.actRotate(InputHandler.rotate_button)
         if (InputHandler.pause_button):
-            current_state = GameState.paused
+            current_state = GameState.PAUSED
             
         if board.gameOver:
-            current_state = GameState.playagain
-            
-    elif (current_state == GameState.playagain):#END OF PLAYING STATE
+            current_state = GameState.PLAYAGAIN
+
+    #PLAYAGIN STATE=======================================
+    elif (current_state == GameState.PLAYAGAIN):
         if InputHandler.accept_button:
-            current_state = GameState.playing
+            current_state = GameState.PLAYING
             board.clear()
-    elif (current_state == GameState.paused):
+        if InputHandler.reject_button:
+            current_state = GameState.MENU
+            board.clear()
+    #PAUSED STATE=========================================
+    elif (current_state == GameState.PAUSED):
         if InputHandler.pause_button:
-            current_state= GameState.playing
+            current_state= GameState.PLAYING
+    #EXIT=================================================
+    elif (current_state == GameState.EXIT):
+        running = False
         
     #RENDER===============================================
     screen.fill((0,0,0))
-    if current_state == GameState.playing:
-        render_screen()
-    elif current_state == GameState.playagain:
-        render_screen()
+    if (current_state == GameState.MENU):
+        render_menu()
+    elif current_state == GameState.PLAYING:
+        render_playing_screen()
+    elif current_state == GameState.PLAYAGAIN:
+        render_playing_screen()
         screen.blit(playagain_text, (10,9*BLOCKSIZE))
-    elif current_state == GameState.paused:
-        render_screen()
+    elif current_state == GameState.PAUSED:
+        render_playing_screen()
         screen.blit(paused_text, (10,9*BLOCKSIZE))
+
         
 
         
@@ -231,3 +261,9 @@ pygame.quit()
 sys.exit()
 
 
+
+
+#TODO
+#Use function for state transitions
+#create cursor object in menu
+#add next pieces

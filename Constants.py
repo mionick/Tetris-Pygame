@@ -1,5 +1,15 @@
 ##CONSTANTS
 import pygame
+from enum import Enum
+
+
+class GameState(Enum):
+    MENU = 0
+    PLAYING = 1
+    PLAYAGAIN = 2
+    PAUSED = 3
+    EXIT = 4
+    
 color = [ (0,0,0),
           (0,0,255),
           (0,255,0),
@@ -26,3 +36,8 @@ pygame.draw.rect(blocks[8], (30,30,30),(0,0,BLOCKSIZE, BLOCKSIZE), 1)
 
 anchors = [(1, 1), (1, 0), (0, 1), (1, 1)]
 lineanchors = [(0, 2), (1, 0), (0, 1), (2, 0)]
+
+
+#MENU STUFF
+button_width = 250
+button_height = 50

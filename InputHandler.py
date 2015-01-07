@@ -112,6 +112,12 @@ def UpdateAccept(cur_val):
     global accept_button
     accept_button = cur_val
 
+reject_button = False
+
+def UpdateReject(cur_val):
+    global reject_button
+    reject_button = cur_val
+
 pause_button = False
 _pause_count = 0
 _pause_delay = 10
@@ -131,7 +137,7 @@ def UpdatePause(cur_val):
         
 #Does not need delay ass it cannot be repeated.
 
-updates = [UpdateLeft, UpdateRight, UpdateRotate, UpdateDown, UpdateDrop, UpdateAccept, UpdateStore, UpdatePause]
+updates = [UpdateLeft, UpdateRight, UpdateRotate, UpdateDown, UpdateDrop, UpdateAccept, UpdateStore, UpdatePause, UpdateReject]
 
 def update():
     #moveRight
