@@ -50,3 +50,7 @@ setup.py
 Network Trash Folder
 Temporary Items
 .apdisk
+
+*.pyc
+__pycache__/UserProfiles.cpython-34.pyc
+__pycache__/RandomGenerator.cpython-34.pyc
