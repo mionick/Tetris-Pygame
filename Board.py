@@ -2,6 +2,7 @@ import pygame
 
 from Constants import *
 from Tetromino import *
+from collections import deque
 import RandomGenerator
 
 class Board():
@@ -19,6 +20,12 @@ class Board():
     next_level = 5
     combo_length = 0
     points = 0
+
+    next_pieces = deque()
+    pieces = []
+
+    for i in range(1, 8):
+        pieces.append(Tetromino(0,0,i))
     
 
     ##BOARD METHODS==================================================================
@@ -27,6 +34,8 @@ class Board():
         Board.board = [[0]*width for i in range(height)]
         self.width = width
         self.height = height
+        for i in range(7):
+            self.next_pieces.append(RandomGenerator.get_next())
        
 
     def clear(self):
@@ -42,6 +51,11 @@ class Board():
         Board.combo_length = 0
         Board.points = 0
 
+        RandomGenerator.reseed()
+        self.next_pieces.clear()
+        for i in range(7):
+            self.next_pieces.append(RandomGenerator.get_next())
+
     def render(self, screen, offX, offY):
         for i in range(len(Board.board)):       #For each row
             for j in range(len(Board.board[i])):#For each cell in that row
@@ -50,6 +64,11 @@ class Board():
         if Board.active != None:
             Board.shadow.render(screen, offX, offY)
             Board.active.render(screen, offX, offY)
+
+    def render_next(self, screen, offX, offY):
+        for i in range(5):
+            self.pieces[self.next_pieces[i] - 1].render(screen, offX, offY+3*i)
+            
 
         
     def update(self):
@@ -177,7 +196,8 @@ class Board():
         Board.active = None
         
     def create(self):
-        Board.active = Tetromino(3, 0, RandomGenerator.get_next())
+        self.next_pieces.append(RandomGenerator.get_next())
+        Board.active = Tetromino(3, 0, self.next_pieces.popleft())
         self.shadowUpdate()
         
 

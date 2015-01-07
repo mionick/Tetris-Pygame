@@ -16,14 +16,14 @@ pygame.init()
 #CONSTANTS===================================================
 WIDTH = 10
 HEIGHT = 22
-P_WIDTH = (WIDTH+7)*BLOCKSIZE
+P_WIDTH = (WIDTH+12)*BLOCKSIZE
 P_HEIGHT = (HEIGHT+2)*BLOCKSIZE
 
 
 
 #GLOBAL VARIABLES============================================
 
-screen = pygame.display.set_mode(((WIDTH+7)*BLOCKSIZE, (HEIGHT+2)*BLOCKSIZE))
+screen = pygame.display.set_mode(((WIDTH+12)*BLOCKSIZE, (HEIGHT+2)*BLOCKSIZE))
 
 #SPRITES=====================================================
 
@@ -67,6 +67,11 @@ paused_text = font20.render("PAUSED", 1, (255,255,255))
 
 
 #FUNCTION DEFINITIONS=======================================
+def GoToMenu():
+    global current_state
+    board.clear()
+    current_state = GameState.MENU
+
 def GetEvents():
     global running
 
@@ -75,7 +80,7 @@ def GetEvents():
         if event.type == pygame.QUIT: running = False
         if event.type == pygame.KEYDOWN:
             if event.key in buttons[0]:
-                running = False # user pressed ESC
+                GoToMenu() # user pressed ESC
             if event.key in buttons[1]:#LEFT
                 userInput[0] = 1
             if event.key in buttons[2]:#RIGHT
@@ -98,8 +103,6 @@ def GetEvents():
                 userInput[8] = 1
                 
         if event.type == pygame.KEYUP:
-            if event.key in buttons[0]:
-                running = False # user pressed ESC
             if event.key in buttons[1]:#LEFT
                 userInput[0] = 0
             if event.key in buttons[2]:#RIGHT
@@ -129,6 +132,7 @@ level_image1 = font20.render("Level:", 1, (255, 255, 255))
 level_image2 = font50.render(str(board.level), 1, (255, 255, 255))
 lines_image = font20.render("lines: " + str(board.lines_total), 1, (255, 255, 255))
 storage_image = font20.render("Stored:", 1, (255, 255, 255))
+next_image = font20.render("Next:", 1, (255, 255, 255))
 
 def render_playing_screen():
     board.render(screen, 6, 1)
@@ -140,10 +144,12 @@ def render_playing_screen():
     screen.blit(level_image2, (BLOCKSIZE, 2*BLOCKSIZE))
     screen.blit(points_image, (BLOCKSIZE, 4*BLOCKSIZE))
     screen.blit(lines_image, (BLOCKSIZE, 5*BLOCKSIZE))
+    screen.blit(next_image, (17*BLOCKSIZE, BLOCKSIZE))
 
     screen.blit(storage_image, (BLOCKSIZE, 19*BLOCKSIZE)) 
     if board.stored != None:
         board.stored.render(screen, 1-board.stored.x, 20-board.stored.y)
+    board.render_next(screen, 17, 2)
 
 
 
@@ -183,7 +189,7 @@ while running:
             Menu.cursor_pos_up()
         if (InputHandler.down_button):
             Menu.cursor_pos_down()
-        if (InputHandler.accept_button):
+        if (InputHandler.accept_button or InputHandler.drop_button):
             current_state = Menu.items[Menu.cursor_pos].attribute
 
     elif (current_state == GameState.PLAYING):
@@ -224,11 +230,9 @@ while running:
     #PLAYAGIN STATE=======================================
     elif (current_state == GameState.PLAYAGAIN):
         if InputHandler.accept_button:
-            current_state = GameState.PLAYING
-            board.clear()
+            GoToMenu()
         if InputHandler.reject_button:
-            current_state = GameState.MENU
-            board.clear()
+            GoToMenu()
     #PAUSED STATE=========================================
     elif (current_state == GameState.PAUSED):
         if InputHandler.pause_button:
@@ -264,6 +268,4 @@ sys.exit()
 
 
 #TODO
-#Use function for state transitions
-#create cursor object in menu
-#add next pieces
+#Highscores

@@ -17,3 +17,8 @@ def get_next():
     poop = _sequence[_current]
     return poop
 
+def reseed():
+    global _sequence, _current
+    _current = 0
+    shuffle(_sequence)
+

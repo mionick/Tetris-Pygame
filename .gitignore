@@ -29,7 +29,8 @@ $RECYCLE.BIN/
 Icon
 dist/
 __pycache__\
-__pycache__
+__pycache__/
+assets/
 Tetris.ico
 Tetris.png
 Tetris.psd
