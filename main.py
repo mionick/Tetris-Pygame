@@ -25,6 +25,9 @@ P_HEIGHT = (HEIGHT+2)*BLOCKSIZE
 
 screen = pygame.display.set_mode(((WIDTH+12)*BLOCKSIZE, (HEIGHT+2)*BLOCKSIZE))
 
+opacity_screen20 = pygame.Surface(((WIDTH+12)*BLOCKSIZE, (HEIGHT+2)*BLOCKSIZE), pygame.SRCALPHA)
+opacity_screen20.fill((0,0,0,100))
+
 #SPRITES=====================================================
 
 board = Board(WIDTH, HEIGHT)
@@ -71,6 +74,11 @@ def GoToMenu():
     global current_state
     board.clear()
     current_state = GameState.MENU
+
+def NewGame():
+    global current_state
+    board.clear()
+    current_state = GameState.PLAYING
 
 def GetEvents():
     global running
@@ -230,7 +238,7 @@ while running:
     #PLAYAGIN STATE=======================================
     elif (current_state == GameState.PLAYAGAIN):
         if InputHandler.accept_button:
-            GoToMenu()
+            NewGame()
         if InputHandler.reject_button:
             GoToMenu()
     #PAUSED STATE=========================================

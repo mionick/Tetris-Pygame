@@ -5,6 +5,8 @@ from Tetromino import *
 from collections import deque
 import RandomGenerator
 
+
+
 class Board():
     board = []
     gameOver = False
@@ -36,6 +38,9 @@ class Board():
         self.height = height
         for i in range(7):
             self.next_pieces.append(RandomGenerator.get_next())
+
+        self.opacity_screen10 = pygame.Surface(((width)*BLOCKSIZE, (height)*BLOCKSIZE), pygame.SRCALPHA)
+        self.opacity_screen10.fill((0,0,0,40))
        
 
     def clear(self):
@@ -61,6 +66,7 @@ class Board():
             for j in range(len(Board.board[i])):#For each cell in that row
                 block = blocks[Board.board[i][j]]
                 screen.blit(block, ((j + offX)*BLOCKSIZE, (i + offY)*BLOCKSIZE))
+        screen.blit(self.opacity_screen10, (offX*BLOCKSIZE, offY*BLOCKSIZE))
         if Board.active != None:
             Board.shadow.render(screen, offX, offY)
             Board.active.render(screen, offX, offY)

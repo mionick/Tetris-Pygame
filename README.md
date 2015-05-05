@@ -23,13 +23,13 @@ As it turns out, you are guaranteed to get one of each piece every seven pieces,
 The graphics are simple squares with borders, so they are all dynamically generated except for the title screen.
 
 The title screen:
-![Title screen](https://www.dropbox.com/s/bxl20jnofbzi4zo/TitleScreen.png?dl=0)
+![Title screen](https://www.dropbox.com/s/bxl20jnofbzi4zo/TitleScreen.png?raw=1)
 
 The game:
-![Playing](https://www.dropbox.com/s/fibl7y2rkg7ytsd/Playing.png?dl=0)
+![Playing](https://www.dropbox.com/s/fibl7y2rkg7ytsd/Playing.png?raw=1)
 
 Game Over:
-![Game over](https://www.dropbox.com/s/jmryzucnpwwb6vp/GameOver.png?dl=0)
+![Game over](https://www.dropbox.com/s/jmryzucnpwwb6vp/GameOver.png?raw=1)
 
 ##Issues
 Choosing Python brought with it some frustrations. 
