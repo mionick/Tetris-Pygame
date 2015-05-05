@@ -39,8 +39,9 @@ Choosing Python brought with it some frustrations.
 The IDLE IDE isn't great for larger projects, and has some small inconvenient behaviors like dissapearing function definitions once you start filling out the parameters.
 No threading.
 Also, since Python has dynamically typed variables there's no easy way to catch typos. For example:
-  variable = 5;
-  vraiable = 10;
+
+    variable = 5
+    vraiable = 10
   
 Instead of throwing an error, this runs fine but variable keeps the value of 5. This caused some headaches during development. 
 
