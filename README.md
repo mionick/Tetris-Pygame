@@ -2,12 +2,13 @@
 ##Intro
 First time I tried to make something substantial without a tutorial. 
 
-This project was a lot of fun! Gave me a great way to take a break from exams at the end of third year.
-Decided to go with Python because of the speed of development and because I was allready familiar with Java and C++. this seemed like a good opportunity to learn something new. 
+This project was a lot of fun! It gave me a great way to take a break from exams at the end of third year.
+Decided to go with Python because of the speed of development and because I was already familiar with Java and C++. this seemed like a good opportunity to learn something new. 
 Also, reading up on game design and architectures it seemed like a common way to write games was to have game logic in a high level language like python and all the detailed optimized code in a lower level language like c.
-I was going to try this with this game, but it never seemed like the "easiest" or "right" way to do it. 
+I was going to try this with this game, but it never seemed like the "right" way to do it.
+The project had no complicated processing or performance requirements. 
 
-The Pygame library(and think Python in general) doesn't have a good way of timing the main game loop, so I don't think writing the game logic here makes sense.
+The Pygame library (and I think Python in general) don't have a good way of timing the main game loop, so I don't think writing the game logic here makes sense.
 Also Python is inherently single threaded, so using it eliminated the idea of a rendering thread completely which is an important concept in large games. 
 
 Looking back on it, I would probably not use python again for the main game logic, but I've read about using a scripting language for AI behavior. Will have to try that in the next game. 
@@ -24,7 +25,7 @@ The graphics are simple squares with borders, so they are all dynamically genera
 
 The title screen:
 
-![Title screen](https://www.dropbox.com/s/bxl20jnofbzi4zo/TitleScreen.png?raw=1)
+![Title screen](https://dl.dropboxusercontent.com/s/bxl20jnofbzi4zo/TitleScreen.png?raw=1)
 
 The game:
 
@@ -36,8 +37,10 @@ Game Over:
 
 ##Issues
 Choosing Python brought with it some frustrations. 
-The IDLE IDE isn't great for larger projects, and has some small inconvenient behaviors like dissapearing function definitions once you start filling out the parameters.
+The IDLE IDE isn't great for larger projects, and has some small inconvenient behaviors, e.g. disappearing function definitions once you start filling out the parameters.
+
 No threading.
+
 Also, since Python has dynamically typed variables there's no easy way to catch typos. For example:
 
     variable = 5
