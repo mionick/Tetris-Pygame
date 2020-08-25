@@ -24,7 +24,7 @@ def load_profile(profile = None):
         buttons.append(set([pygame.K_DOWN]))    #DOWN
         buttons.append(set([pygame.K_SPACE]))   #DROP
         buttons.append(set([pygame.K_y, pygame.K_RETURN]))       #ACCEPT
-        buttons.append(set([pygame.K_RSHIFT]))  #STORE
+        buttons.append(set([pygame.K_RSHIFT, pygame.K_c]))  #STORE
         buttons.append(set([pygame.K_LSHIFT]))  #PAUSE
         buttons.append(set([pygame.K_n, pygame.K_BACKSPACE]))  #Reject
     

@@ -6,28 +6,35 @@ from Constants import *
 from UserProfiles import load_profile, buttons
 import Menu
 
+import win32api
+import win32con
+import win32gui
+
+import logging
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.debug('This is a log message.')
+
 #Initializing================================================
 load_profile()
 
 pygame.init()
 
+# Set window transparency color
+hwnd = pygame.display.get_wm_info()["window"]
+win32gui.SetWindowLong(hwnd, win32con.GWL_EXSTYLE,
+                       win32gui.GetWindowLong(hwnd, win32con.GWL_EXSTYLE) | win32con.WS_EX_LAYERED)
+win32gui.SetLayeredWindowAttributes(hwnd, win32api.RGB(*fuschia), 100, win32con.LWA_COLORKEY)
 
-
-#CONSTANTS===================================================
-WIDTH = 10
-HEIGHT = 22
-P_WIDTH = (WIDTH+12)*BLOCKSIZE
-P_HEIGHT = (HEIGHT+2)*BLOCKSIZE
 
 
 
 #GLOBAL VARIABLES============================================
 
-screen = pygame.display.set_mode(((WIDTH+12)*BLOCKSIZE, (HEIGHT+2)*BLOCKSIZE))
+screen = pygame.display.set_mode(((WIDTH+12)*BLOCKSIZE, (HEIGHT+2)*BLOCKSIZE), pygame.SRCALPHA)
 
 opacity_screen20 = pygame.Surface(((WIDTH+12)*BLOCKSIZE, (HEIGHT+2)*BLOCKSIZE), pygame.SRCALPHA)
-opacity_screen20.fill((0,0,0,100))
-
+#opacity_screen20.fill((0,0,0,100))
+opacity_screen20.fill(fuschia)
 #SPRITES=====================================================
 
 board = Board(WIDTH, HEIGHT)
@@ -37,6 +44,7 @@ clock = pygame.time.Clock()
 running = True
 FPS = 60
 actualFPS = 60
+anti_alias = 0
 frames = 0
 startTime = pygame.time.get_ticks()
 
@@ -46,7 +54,7 @@ font30 = pygame.font.SysFont("monospace", 30)
 font50 = pygame.font.SysFont("monospace", 50)
 
 # render text
-fps_image = font15.render(str(FPS), 1, (255,255,255))
+fps_image = font15.render(str(FPS), anti_alias, (255,255,255))
 
 
 
@@ -135,18 +143,18 @@ def GetEvents():
 #END Get Events
 
 #RENDER FUNCTION + VARIABLES
-points_image = font20.render("Score:" + str(board.points), 1, (255, 255, 255))
-level_image1 = font20.render("Level:", 1, (255, 255, 255))
-level_image2 = font50.render(str(board.level), 1, (255, 255, 255))
-lines_image = font20.render("lines: " + str(board.lines_total), 1, (255, 255, 255))
-storage_image = font20.render("Stored:", 1, (255, 255, 255))
-next_image = font20.render("Next:", 1, (255, 255, 255))
+points_image = font20.render("Score:" + str(board.points), anti_alias, (255, 255, 255))
+level_image1 = font20.render("Level:", anti_alias, (255, 255, 255))
+level_image2 = font50.render(str(board.level), anti_alias, (255, 255, 255))
+lines_image = font20.render("lines: " + str(board.lines_total), anti_alias, (255, 255, 255))
+storage_image = font20.render("Stored:", anti_alias, (255, 255, 255))
+next_image = font20.render("Next:", anti_alias, (255, 255, 255))
 
 def render_playing_screen():
     board.render(screen, 6, 1)
-    level_image2 = font50.render(str(board.level), 1, (255, 255, 255))
-    points_image = font20.render("Score:" + str(board.points), 1, (255, 255, 255))
-    lines_image = font20.render("lines: " + str(board.lines_total), 1, (255, 255, 255))
+    level_image2 = font50.render(str(board.level), anti_alias, (255, 255, 255))
+    points_image = font20.render("Score:" + str(board.points), anti_alias, (255, 255, 255))
+    lines_image = font20.render("lines: " + str(board.lines_total), anti_alias, (255, 255, 255))
     
     screen.blit(level_image1, (BLOCKSIZE, BLOCKSIZE))
     screen.blit(level_image2, (BLOCKSIZE, 2*BLOCKSIZE))
@@ -186,7 +194,7 @@ while running:
         actualFPS = frames
         frames=0
         startTime = pygame.time.get_ticks()
-        fps_image = font15.render(str(actualFPS), 1, (255,255,255))
+        fps_image = font15.render(str(actualFPS), anti_alias, (255,255,255))
 
     #UPDATE===============================================
     #MENU STATE======================================
@@ -208,34 +216,35 @@ while running:
             switched = False
             sinceYUpdate = 0
 
-        ##Switching with Stored
-        if (InputHandler.store_button and not switched):
-            board.store()
-            switched = True
-            continue
-        #Drop piece by one
-        if (sinceYUpdate >= 1.0/board.fall_rate):
-            board.actIncY()
-            sinceYUpdate = 0
-        #Or move left/right
-        if (InputHandler.right_button or InputHandler.left_button):
-            board.actMoveX(InputHandler.right_button - InputHandler.left_button)
-        #Drop piece
-        if (InputHandler.drop_button):
-            board.actDrop()
-        #Moving down
-        if (InputHandler.down_button):
-            board.actIncY()
-        #Rotate Piece
-        if (InputHandler.rotate_button != 0):
-            board.actRotate(InputHandler.rotate_button)
+        if not board.inAnimation:
+            ##Switching with Stored
+            if (InputHandler.store_button and not switched):
+                board.store()
+                switched = True
+                continue
+            #Drop piece by one
+            if (sinceYUpdate >= 1.0/board.fall_rate):
+                board.actIncY()
+                sinceYUpdate = 0
+            #Or move left/right
+            if (InputHandler.right_button or InputHandler.left_button):
+                board.actMoveX(InputHandler.right_button - InputHandler.left_button)
+            #Drop piece
+            if (InputHandler.drop_button):
+                board.actDrop()
+            #Moving down
+            if (InputHandler.down_button):
+                board.actIncY()
+            #Rotate Piece
+            if (InputHandler.rotate_button != 0):
+                board.actRotate(InputHandler.rotate_button)
         if (InputHandler.pause_button):
             current_state = GameState.PAUSED
             
         if board.gameOver:
             current_state = GameState.PLAYAGAIN
 
-    #PLAYAGIN STATE=======================================
+    #PLAYAGAIN STATE=======================================
     elif (current_state == GameState.PLAYAGAIN):
         if InputHandler.accept_button:
             NewGame()
@@ -250,7 +259,7 @@ while running:
         running = False
         
     #RENDER===============================================
-    screen.fill((0,0,0))
+    screen.fill(fuschia)
     if (current_state == GameState.MENU):
         render_menu()
     elif current_state == GameState.PLAYING:

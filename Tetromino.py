@@ -132,9 +132,17 @@ class Tetromino():
         self.y +=y
         self.x +=x
 
-    def render(self, screen, offX, offY):
+    def render(self, screen, offX, offY, brightness = 1):
         for i in range(len(self.shape)):       #For each row
             for j in range(len(self.shape[i])):#For each cell in that row
-                if(self.shape[i][j] == 1):
+                if self.shape[i][j] == 1:
                     screen.blit(blocks[self.kind], ((j+self.x +offX)*BLOCKSIZE, (i + self.y +offY)*BLOCKSIZE))
+                    shade = pygame.Surface((BLOCKSIZE, BLOCKSIZE), pygame.SRCALPHA)
+                    try:
+                        shade.fill((0, 0, 0, 255*(1-brightness)))
+                    except(TypeError):
+                        print("INVALID COLOR ARGUEMNT")
+                        print(brightness)
+                    screen.blit(shade, ((j + self.x + offX) * BLOCKSIZE, (i + self.y + offY) * BLOCKSIZE))
+
 
